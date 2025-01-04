@@ -1,4 +1,4 @@
-import { DependencyContainer } from "tsyringe";
+import { DependencyContainer, inject } from "tsyringe";
 import { IPostDBLoadMod } from "@spt/models/external/IPostDBLoadMod";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
 import { DatabaseServer } from "@spt/servers/DatabaseServer";
@@ -22,18 +22,19 @@ class EasyHideout implements IPostDBLoadMod {
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
         this.vfs = container.resolve<VFS>("VFS");
         this.jsonUtil = container.resolve<JsonUtil>("JsonUtil");
-
         this.config = this.jsonUtil.deserializeJson5(this.vfs.readFile(path.join(__dirname , "../config/config.json5")));
         this.DB = this.databaseServer.getTables();
      
+        // Print the config file if debug is true
         if (this.config["debug"]) {
             for (const key in this.config) {
-                this.logger.info(`EasyHideout config: ${key}: ${this.config[key]}`);
+                this.logger.logWithColor("EasyHideout config: ${key}: ${this.config[key]}", LogTextColor.CYAN);
             }
         }
 
+        this.logger.logWithColor("EasyHideout: Applying multiplier..", LogTextColor.GREEN);
         this.applyHideoutSettings()
-        this.logger.logWithColor("EasyHideout: Mod loaded", LogTextColor.GREEN);
+        this.logger.logWithColor("EasyHideout: Done! Mod loaded", LogTextColor.GREEN);
     }
 
     private applyHideoutSettings(): void {
@@ -51,6 +52,7 @@ class EasyHideout implements IPostDBLoadMod {
             for (const _j in area.stages) {
                 const stage = area.stages[_j];
 
+                // Only do something, if there are requirements
                 if (stage.requirements !== undefined && stage.requirements.length != 0) {
                     for (const _k in stage.requirements) {
                         const requirement = stage.requirements[_k];
@@ -60,8 +62,9 @@ class EasyHideout implements IPostDBLoadMod {
                             // The next part makes sure, that at least 1 item is needed for the hideout upgrade
                             requirement.count = Math.max(Math.ceil(requirement.count * itemMultiplier), 1);
 
+                            // Print every change if debug is enabled
                             if (this.config["debug"]) {
-                                this.logger.logWithColor(`EasyHideout: Changed item requirement: ${requirement.templateId} x${requirement.count} (was x${requirement.count / itemMultiplier})`, LogTextColor.GREEN);
+                                this.logger.logWithColor(`EasyHideout: Changed item requirement: ${this.DB.templates.items[requirement.templateId]._name} (${requirement.templateId}) for ${area._id} to x${requirement.count} (was x${requirement.count / itemMultiplier})`, LogTextColor.CYAN);
                             }
                         }
                     }
