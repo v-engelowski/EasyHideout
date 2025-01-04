@@ -1,0 +1,7 @@
+{
+    // Log more stuff to the console for debugging purposes
+    "debug": false,
+
+    // The multiplier to scale the number of items required for each upgrade (items need * multiplier). Range: >= 0
+    "itemMultiplier": 1.0
+}
