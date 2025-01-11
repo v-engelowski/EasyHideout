@@ -1,4 +1,4 @@
-import { DependencyContainer, inject } from "tsyringe";
+import { DependencyContainer } from "tsyringe";
 import { IPostDBLoadMod } from "@spt/models/external/IPostDBLoadMod";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
 import { DatabaseServer } from "@spt/servers/DatabaseServer";
@@ -28,7 +28,7 @@ class EasyHideout implements IPostDBLoadMod {
         // Print the config file if debug is true
         if (this.config["debug"]) {
             for (const key in this.config) {
-                this.logger.logWithColor("EasyHideout config: ${key}: ${this.config[key]}", LogTextColor.CYAN);
+                this.logger.logWithColor(`EasyHideout config: ${key}: ${this.config[key]}`, LogTextColor.CYAN);
             }
         }
 
