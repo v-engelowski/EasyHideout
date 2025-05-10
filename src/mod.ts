@@ -2,7 +2,7 @@ import { DependencyContainer } from "tsyringe";
 import { IPostDBLoadMod } from "@spt/models/external/IPostDBLoadMod";
 import { ILogger } from "@spt/models/spt/utils/ILogger";
 import { DatabaseServer } from "@spt/servers/DatabaseServer";
-import { VFS } from "@spt/utils/VFS";
+import { FileSystemSync } from "@spt/utils/FileSystemSync";
 import { LogTextColor } from "@spt/models/spt/logging/LogTextColor";
 import path from "path";
 import { JsonUtil } from "@spt/utils/JsonUtil";
@@ -12,7 +12,7 @@ class EasyHideout implements IPostDBLoadMod {
     private config: any;
     private logger: ILogger;
     private databaseServer: DatabaseServer;
-    private vfs: VFS;
+    private fileSystem: FileSystemSync;
     private jsonUtil: JsonUtil;
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private DB: IDatabaseTables;
@@ -20,9 +20,9 @@ class EasyHideout implements IPostDBLoadMod {
     public postDBLoad(container: DependencyContainer): void {
         this.logger = container.resolve<ILogger>("WinstonLogger");
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
-        this.vfs = container.resolve<VFS>("VFS");
+        this.fileSystem = container.resolve<FileSystemSync>("FileSystemSync");
         this.jsonUtil = container.resolve<JsonUtil>("JsonUtil");
-        this.config = this.jsonUtil.deserializeJson5(this.vfs.readFile(path.join(__dirname , "../config/config.json5")));
+        this.config = this.jsonUtil.deserializeJson5(this.fileSystem.read(path.join(__dirname , "../config/config.json5")));
         this.DB = this.databaseServer.getTables();
      
         // Print the config file if debug is true
